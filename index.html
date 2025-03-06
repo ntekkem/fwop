@@ -37,9 +37,9 @@
 
     <div class="container">
         <a href="index.html">
-    <img src="fwop-logo.png" alt="Home" width="100">
-</a>
-<h2>FWOP Volunteer Signup</h2>
+            <img src="fwop-logo.png" alt="Home" width="100">
+        </a>
+        <h2>FWOP Volunteer Signup</h2>
 
         <input type="text" id="name" placeholder="Full Name" required>
         <input type="email" id="email" placeholder="Email" required>
@@ -75,7 +75,7 @@
                 return;
             }
 
-            fetch("https://script.google.com/macros/s/AKfycbwwZbaYiJKqzjRbhhrs6ZjKOYXoQHmd-WxPIDdeR4BqxPmXcJTi-qJJlMVqdJugItbMnw/exec", {
+            fetch("YOUR_NEW_WEB_APP_URL_HERE", {  // Replace with your new Web App URL
                 method: "POST",
                 body: JSON.stringify({ name, email, date, time, status: "Signed Up" }),
                 headers: { "Content-Type": "application/json" }
@@ -85,10 +85,13 @@
                 if (data.result === "Success") {
                     alert("You have successfully signed up!");
                 } else {
-                    alert("There was an error signing up.");
+                    alert("There was an error signing up: " + data.message);
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                alert("There was a problem connecting to the server.");
+            });
         }
     </script>
 
