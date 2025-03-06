@@ -1,50 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-    }
-    .sidebar {
-        height: 100vh;
-        width: 200px;
-        background-color: #0073e6;
-        color: white;
-        padding: 20px;
-        position: fixed;
-        left: 0;
-        top: 0;
-        display: flex;
-        flex-direction: column;
-    }
-    .sidebar a {
-        color: white;
-        text-decoration: none;
-        padding: 10px;
-        display: block;
-        margin: 10px 0;
-    }
-    .sidebar a:hover {
-        background-color: #005bb5;
-        border-radius: 5px;
-    }
-    .content {
-        margin-left: 220px;
-        padding: 20px;
-        width: 100%;
-    }
-</style>
->
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FWOP - Community</title>
+    
     <style>
+        /* Sidebar Styles */
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
             background-color: #f4f4f4;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 200px;
+            background-color: #0073e6;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+            margin: 10px 0;
+        }
+        .sidebar a:hover {
+            background-color: #005bb5;
+            border-radius: 5px;
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
         }
         .container {
             max-width: 600px;
@@ -66,21 +65,25 @@
         }
     </style>
 </head>
-<div class="sidebar">
-    <h2>Menu</h2>
-    <a href="index.html">Home</a>
-    <a href="profile.html">Profile</a>
-    <a href="community.html">Community</a>
-    <a href="signup.html">Volunteer Signup</a>
-</div>
 
-</div>
->
+<body>
 
-    <div class="container">
-        <h2>Community Members</h2>
-        <p>More features coming soon...</p>
-        <button class="btn" onclick="goBack()">Back to Profile</button>
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <a href="index.html">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="community.html">Community</a>
+        <a href="signup.html">Volunteer Signup</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="container">
+            <h2>Community Members</h2>
+            <p>More features coming soon...</p>
+            <button class="btn" onclick="goBack()">Back to Profile</button>
+        </div>
     </div>
 
     <script>
