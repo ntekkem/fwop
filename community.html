@@ -79,34 +79,15 @@
             text-align: left;
             position: relative;
         }
-        .post img {
-            max-width: 100%;
+        .thumbnail {
+            max-width: 100px;
             border-radius: 5px;
-            margin-top: 10px;
-        }
-        .reactions {
-            display: flex;
-            gap: 5px;
-            margin-top: 5px;
-        }
-        .reaction-btn {
-            border: none;
-            background: none;
             cursor: pointer;
-            font-size: 18px;
+            margin: 5px;
         }
         .timestamp {
             font-size: 12px;
             color: gray;
-        }
-        .edit-delete {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .edit-delete button {
-            font-size: 12px;
-            padding: 2px 5px;
         }
         .username {
             font-weight: bold;
@@ -115,6 +96,34 @@
             font-style: italic;
             color: darkblue;
         }
+        .image-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .image-popup img {
+            max-width: 90%;
+            max-height: 80%;
+        }
+        .close-btn, .prev-btn, .next-btn {
+            position: absolute;
+            top: 10px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .close-btn { right: 20px; }
+        .prev-btn { left: 20px; }
+        .next-btn { right: 20px; }
     </style>
 </head>
 
@@ -134,11 +143,19 @@
         <div class="container">
             <h2>Community Discussion</h2>
             <textarea id="postContent" placeholder="Write something..."></textarea>
-            <input type="file" id="imageUpload" accept="image/*">
+            <input type="file" id="imageUpload" accept="image/*" multiple>
             <button class="btn" onclick="submitPost()">Post</button>
             
             <div id="posts"></div>
         </div>
+    </div>
+
+    <!-- Image Popup -->
+    <div id="imagePopup" class="image-popup">
+        <button class="close-btn" onclick="closeImage()">✖</button>
+        <button class="prev-btn" onclick="prevImage()">◀</button>
+        <img id="popupImage" src="" alt="Expanded Image">
+        <button class="next-btn" onclick="nextImage()">▶</button>
     </div>
 
     <script>
@@ -148,6 +165,9 @@
         if (!user || !user.name) {
             window.location.href = "profile.html"; 
         }
+
+        let currentImages = [];
+        let currentIndex = 0;
 
         function submitPost() {
             let content = document.getElementById("postContent").value;
@@ -164,22 +184,25 @@
                 name: user.name,
                 year: profile.year,
                 content: content,
-                image: "",
+                images: [],
                 timestamp: new Date().toLocaleString(),
-                reactions: { 👍: 0, ❤️: 0, 😂: 0, 🔥: 0 },
-                replies: []
             };
 
-            if (fileInput.files.length > 0) {
+            let imagePromises = [];
+            for (let file of fileInput.files) {
                 let reader = new FileReader();
-                reader.onload = function (e) {
-                    post.image = e.target.result;
-                    saveAndDisplayPost(post);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                saveAndDisplayPost(post);
+                imagePromises.push(new Promise(resolve => {
+                    reader.onload = function (e) {
+                        post.images.push(e.target.result);
+                        resolve();
+                    };
+                    reader.readAsDataURL(file);
+                }));
             }
+
+            Promise.all(imagePromises).then(() => {
+                saveAndDisplayPost(post);
+            });
 
             document.getElementById("postContent").value = "";
             fileInput.value = "";
@@ -201,49 +224,40 @@
                 let postDiv = document.createElement("div");
                 postDiv.classList.add("post");
                 postDiv.innerHTML = `
-                    <div class="edit-delete">
-                        <button onclick="editPost(${post.id})">✏️</button>
-                        <button onclick="deletePost(${post.id})">🗑️</button>
-                    </div>
                     <span class="username">${post.name} <span class="year">(${post.year})</span></span>
                     <p>${post.content}</p>
-                    ${post.image ? `<img src="${post.image}" alt="Post Image">` : ""}
+                    <div class="thumbnails">${post.images.map((img, index) => `
+                        <img src="${img}" class="thumbnail" onclick="openImage(${JSON.stringify(post.images)}, ${index})">
+                    `).join('')}</div>
                     <p class="timestamp">${post.timestamp}</p>
-                    <div class="reactions">
-                        <button class="reaction-btn" onclick="react(${post.id}, '👍')">👍 ${post.reactions['👍']}</button>
-                        <button class="reaction-btn" onclick="react(${post.id}, '❤️')">❤️ ${post.reactions['❤️']}</button>
-                        <button class="reaction-btn" onclick="react(${post.id}, '😂')">😂 ${post.reactions['😂']}</button>
-                        <button class="reaction-btn" onclick="react(${post.id}, '🔥')">🔥 ${post.reactions['🔥']}</button>
-                    </div>
                 `;
                 postsContainer.appendChild(postDiv);
             });
         }
 
-        function editPost(id) {
-            let posts = JSON.parse(localStorage.getItem("fwop_posts"));
-            let post = posts.find(p => p.id === id);
-            let newContent = prompt("Edit your post:", post.content);
-            if (newContent !== null) {
-                post.content = newContent;
-                localStorage.setItem("fwop_posts", JSON.stringify(posts));
-                displayPosts();
+        function openImage(images, index) {
+            currentImages = images;
+            currentIndex = index;
+            document.getElementById("popupImage").src = images[index];
+            document.getElementById("imagePopup").style.display = "flex";
+        }
+
+        function closeImage() {
+            document.getElementById("imagePopup").style.display = "none";
+        }
+
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                document.getElementById("popupImage").src = currentImages[currentIndex];
             }
         }
 
-        function deletePost(id) {
-            let posts = JSON.parse(localStorage.getItem("fwop_posts"));
-            posts = posts.filter(p => p.id !== id);
-            localStorage.setItem("fwop_posts", JSON.stringify(posts));
-            displayPosts();
-        }
-
-        function react(id, emoji) {
-            let posts = JSON.parse(localStorage.getItem("fwop_posts"));
-            let post = posts.find(p => p.id === id);
-            post.reactions[emoji]++;
-            localStorage.setItem("fwop_posts", JSON.stringify(posts));
-            displayPosts();
+        function nextImage() {
+            if (currentIndex < currentImages.length - 1) {
+                currentIndex++;
+                document.getElementById("popupImage").src = currentImages[currentIndex];
+            }
         }
 
         displayPosts();
