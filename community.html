@@ -6,17 +6,19 @@
     <title>FWOP - Community</title>
     
     <style>
-        /* Sidebar Styles */
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
             background-color: #f4f4f4;
+            display: flex;
         }
+
+        /* Sidebar Styles */
         .sidebar {
+            width: 220px;
             height: 100vh;
-            width: 200px;
             background-color: #0073e6;
             color: white;
             padding: 20px;
@@ -25,6 +27,7 @@
             top: 0;
             display: flex;
             flex-direction: column;
+            align-items: flex-start;
         }
         .sidebar a {
             color: white;
@@ -32,6 +35,7 @@
             padding: 10px;
             display: block;
             margin: 10px 0;
+            width: 100%;
         }
         .sidebar a:hover {
             background-color: #005bb5;
@@ -40,7 +44,7 @@
 
         /* Main Content */
         .content {
-            margin-left: 220px;
+            margin-left: 240px; /* Make space for sidebar */
             padding: 20px;
             width: 100%;
             text-align: center;
@@ -63,6 +67,9 @@
             padding: 10px;
             margin: 5px;
         }
+        .btn:hover {
+            background-color: #005bb5;
+        }
     </style>
 </head>
 
@@ -71,10 +78,10 @@
     <!-- Sidebar Menu -->
     <div class="sidebar">
         <h2>Menu</h2>
-        <a href="index.html">Home</a>
-        <a href="profile.html">Profile</a>
-        <a href="community.html">Community</a>
-        <a href="signup.html">Volunteer Signup</a>
+        <a href="index.html">🏠 Home</a>
+        <a href="profile.html">👤 Profile</a>
+        <a href="community.html">🌎 Community</a>
+        <a href="signup.html">✍ Volunteer Signup</a>
     </div>
 
     <!-- Main Content -->
