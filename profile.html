@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FWOP - Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #0073e6;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover {
+            background-color: #005bb5;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Set Up Your Profile</h2>
+        <input type="file" id="profilePicInput" accept="image/*">
+        <img id="profilePic" class="profile-pic" src="" alt="Profile Picture">
+        <input type="text" id="year" placeholder="Year in College">
+        <input type="text" id="hobbies" placeholder="Hobbies">
+        <textarea id="bio" placeholder="Short Bio"></textarea>
+        <button class="btn" onclick="saveProfile()">Save Profile</button>
+        <button class="btn" onclick="goToCommunity()">Go to Community</button>
+    </div>
+
+    <script>
+        let user = JSON.parse(localStorage.getItem("fwop_user"));
+
+        if (!user) {
+            window.location.href = "index.html";
+        }
+
+        function saveProfile() {
+            let year = document.getElementById("year").value;
+            let hobbies = document.getElementById("hobbies").value;
+            let bio = document.getElementById("bio").value;
+            
+            let profilePicInput = document.getElementById("profilePicInput");
+            let profilePic = localStorage.getItem("fwop_profilePic");
+
+            if (profilePicInput.files.length > 0) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    localStorage.setItem("fwop_profilePic", e.target.result);
+                    document.getElementById("profilePic").src = e.target.result;
+                };
+                reader.readAsDataURL(profilePicInput.files[0]);
+            }
+
+            let profileData = { year, hobbies, bio, profilePic };
+            localStorage.setItem("fwop_profile", JSON.stringify(profileData));
+
+            alert("Profile saved!");
+        }
+
+        function goToCommunity() {
+            window.location.href = "community.html";
+        }
+
+        let savedProfile = JSON.parse(localStorage.getItem("fwop_profile"));
+        if (savedProfile) {
+            document.getElementById("year").value = savedProfile.year;
+            document.getElementById("hobbies").value = savedProfile.hobbies;
+            document.getElementById("bio").value = savedProfile.bio;
+            if (savedProfile.profilePic) {
+                document.getElementById("profilePic").src = savedProfile.profilePic;
+            }
+        }
+    </script>
+
+</body>
+</html>
