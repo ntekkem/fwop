@@ -17,7 +17,7 @@
         .sidebar {
             height: 100vh;
             width: 200px;
-            background-color: #007d34; /* Updated to green */
+            background-color: #007d34; /* Green theme */
             color: white;
             padding: 20px;
             position: fixed;
@@ -49,7 +49,7 @@
             max-width: 400px;
             margin: auto;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 2px solid #007d34; /* Green border */
             border-radius: 5px;
             background: white;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -59,18 +59,18 @@
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            border: 1px solid #ddd;
+            border: 2px solid #007d34;
             border-radius: 5px;
         }
         .btn {
-            background-color: #0073e6;
+            background-color: #007d34; /* Green button */
             color: white;
             cursor: pointer;
             border: none;
             padding: 10px;
         }
         .btn:hover {
-            background-color: #005bb5;
+            background-color: #005f28;
         }
     </style>
 </head>
@@ -90,9 +90,9 @@
     <div class="content">
         <div class="container">
             <h2>Set Up Your Profile</h2>
+            <input type="text" id="name" placeholder="Full Name">
             <input type="text" id="year" placeholder="Year in College">
-            <input type="text" id="hobbies" placeholder="Hobbies">
-            <textarea id="bio" placeholder="Short Bio"></textarea>
+            <input type="text" id="contact" placeholder="Contact Information">
             <button class="btn" onclick="saveProfile()">Save Profile</button>
             <button class="btn" onclick="goToCommunity()">Go to Community</button>
         </div>
@@ -106,11 +106,16 @@
         }
 
         function saveProfile() {
+            let name = document.getElementById("name").value;
             let year = document.getElementById("year").value;
-            let hobbies = document.getElementById("hobbies").value;
-            let bio = document.getElementById("bio").value;
+            let contact = document.getElementById("contact").value;
 
-            let profileData = { year, hobbies, bio };
+            if (!name || !year || !contact) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            let profileData = { name, year, contact };
             localStorage.setItem("fwop_profile", JSON.stringify(profileData));
 
             alert("Profile saved!");
@@ -123,5 +128,11 @@
         // Load saved profile info
         let savedProfile = JSON.parse(localStorage.getItem("fwop_profile"));
         if (savedProfile) {
+            document.getElementById("name").value = savedProfile.name;
             document.getElementById("year").value = savedProfile.year;
-            document.getElementById
+            document.getElementById("contact").value = savedProfile.contact;
+        }
+    </script>
+
+</body>
+</html>
