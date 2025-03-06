@@ -129,7 +129,7 @@
     <!-- Main Content -->
     <div class="content">
         <div class="container">
-            <h2>Community Discussion</h2>
+            <h2>Community</h2>
             <textarea id="postContent" placeholder="Write something..."></textarea>
             <input type="text" id="postLocation" placeholder="Location (Optional)">
             <input type="file" id="imageUpload" accept="image/*" multiple>
@@ -162,7 +162,8 @@
                 content: content,
                 images: [],
                 timestamp: new Date().toLocaleString(),
-                reactions: { "👍": 0, "❤️": 0, "😂": 0, "😮": 0, "😢": 0, "👎": 0 }
+                reactions: {},
+                reactedBy: {}
             };
 
             let imagePromises = [];
@@ -208,8 +209,10 @@
                     <div class="thumbnails">${post.images.map(img => `<img src="${img}" class="thumbnail">`).join('')}</div>
                     <p class="timestamp">${post.timestamp}</p>
                     <div class="emoji-reactions">
-                        ${Object.keys(post.reactions).map(emoji => `
-                            <span onclick="reactToPost(${postIndex}, '${emoji}')">${emoji} ${post.reactions[emoji]}</span>
+                        ${["👍", "❤️", "😂", "😮", "😢", "👎"].map(emoji => `
+                            <span onclick="reactToPost(${postIndex}, '${emoji}')">
+                                ${emoji} ${post.reactions[emoji] || 0}
+                            </span>
                         `).join('')}
                     </div>
                     <div class="actions">
@@ -223,25 +226,9 @@
 
         function reactToPost(index, emoji) {
             let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
-            if (posts[index]) {
-                posts[index].reactions[emoji]++;
-                localStorage.setItem("fwop_posts", JSON.stringify(posts));
-                displayPosts();
-            }
-        }
-
-        function deletePost(index) {
-            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
-            posts.splice(index, 1);
-            localStorage.setItem("fwop_posts", JSON.stringify(posts));
-            displayPosts();
-        }
-
-        function editPost(index) {
-            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
-            let newContent = prompt("Edit your post:", posts[index].content);
-            if (newContent !== null) {
-                posts[index].content = newContent;
+            if (!posts[index].reactedBy[user.name]) {
+                posts[index].reactedBy[user.name] = emoji;
+                posts[index].reactions[emoji] = (posts[index].reactions[emoji] || 0) + 1;
                 localStorage.setItem("fwop_posts", JSON.stringify(posts));
                 displayPosts();
             }
