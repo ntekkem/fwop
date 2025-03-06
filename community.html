@@ -96,34 +96,15 @@
             font-style: italic;
             color: darkblue;
         }
-        .image-popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+        .location {
+            font-size: 12px;
+            color: #555;
         }
-        .image-popup img {
-            max-width: 90%;
-            max-height: 80%;
-        }
-        .close-btn, .prev-btn, .next-btn {
-            position: absolute;
-            top: 10px;
-            font-size: 24px;
-            background: none;
-            border: none;
-            color: white;
+        .emoji-reactions span {
             cursor: pointer;
+            font-size: 18px;
+            margin-right: 10px;
         }
-        .close-btn { right: 20px; }
-        .prev-btn { left: 20px; }
-        .next-btn { right: 20px; }
     </style>
 </head>
 
@@ -143,19 +124,12 @@
         <div class="container">
             <h2>Community Discussion</h2>
             <textarea id="postContent" placeholder="Write something..."></textarea>
+            <input type="text" id="postLocation" placeholder="Location (Optional)">
             <input type="file" id="imageUpload" accept="image/*" multiple>
             <button class="btn" onclick="submitPost()">Post</button>
             
             <div id="posts"></div>
         </div>
-    </div>
-
-    <!-- Image Popup -->
-    <div id="imagePopup" class="image-popup">
-        <button class="close-btn" onclick="closeImage()">✖</button>
-        <button class="prev-btn" onclick="prevImage()">◀</button>
-        <img id="popupImage" src="" alt="Expanded Image">
-        <button class="next-btn" onclick="nextImage()">▶</button>
     </div>
 
     <script>
@@ -166,11 +140,9 @@
             window.location.href = "profile.html"; 
         }
 
-        let currentImages = [];
-        let currentIndex = 0;
-
         function submitPost() {
             let content = document.getElementById("postContent").value;
+            let location = document.getElementById("postLocation").value;
             let fileInput = document.getElementById("imageUpload");
             let postsContainer = document.getElementById("posts");
 
@@ -183,9 +155,11 @@
                 id: Date.now(),
                 name: user.name,
                 year: profile.year,
+                location: location.trim() !== "" ? location : "Location not provided",
                 content: content,
                 images: [],
                 timestamp: new Date().toLocaleString(),
+                reactions: { "👍": 0, "❤️": 0, "😂": 0, "😮": 0, "😢": 0, "👎": 0 }
             };
 
             let imagePromises = [];
@@ -205,6 +179,7 @@
             });
 
             document.getElementById("postContent").value = "";
+            document.getElementById("postLocation").value = "";
             fileInput.value = "";
         }
 
@@ -220,43 +195,31 @@
             postsContainer.innerHTML = "";
             let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
 
-            posts.forEach(post => {
+            posts.forEach((post, postIndex) => {
                 let postDiv = document.createElement("div");
                 postDiv.classList.add("post");
                 postDiv.innerHTML = `
                     <span class="username">${post.name} <span class="year">(${post.year})</span></span>
+                    <p class="location">${post.location}</p>
                     <p>${post.content}</p>
-                    <div class="thumbnails">${post.images.map((img, index) => `
-                        <img src="${img}" class="thumbnail" onclick="openImage(${JSON.stringify(post.images)}, ${index})">
-                    `).join('')}</div>
+                    <div class="thumbnails">${post.images.map(img => `<img src="${img}" class="thumbnail">`).join('')}</div>
                     <p class="timestamp">${post.timestamp}</p>
+                    <div class="emoji-reactions">
+                        ${Object.keys(post.reactions).map(emoji => `
+                            <span onclick="reactToPost(${postIndex}, '${emoji}')">${emoji} ${post.reactions[emoji]}</span>
+                        `).join('')}
+                    </div>
                 `;
                 postsContainer.appendChild(postDiv);
             });
         }
 
-        function openImage(images, index) {
-            currentImages = images;
-            currentIndex = index;
-            document.getElementById("popupImage").src = images[index];
-            document.getElementById("imagePopup").style.display = "flex";
-        }
-
-        function closeImage() {
-            document.getElementById("imagePopup").style.display = "none";
-        }
-
-        function prevImage() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                document.getElementById("popupImage").src = currentImages[currentIndex];
-            }
-        }
-
-        function nextImage() {
-            if (currentIndex < currentImages.length - 1) {
-                currentIndex++;
-                document.getElementById("popupImage").src = currentImages[currentIndex];
+        function reactToPost(index, emoji) {
+            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
+            if (posts[index]) {
+                posts[index].reactions[emoji]++;
+                localStorage.setItem("fwop_posts", JSON.stringify(posts));
+                displayPosts();
             }
         }
 
