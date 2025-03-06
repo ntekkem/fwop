@@ -46,7 +46,7 @@
             text-align: center;
         }
         .container {
-            max-width: 400px;
+            max-width: 600px;
             margin: auto;
             padding: 20px;
             border: 1px solid #008000;
@@ -71,6 +71,16 @@
         .btn:hover {
             background-color: #005500;
         }
+        .gallery {
+            margin-top: 20px;
+        }
+        .gallery img {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -79,7 +89,7 @@
     <!-- Sidebar Menu -->
     <div class="sidebar">
         <h2>Menu</h2>
-        <a href="index.html">🏠 Home</a>
+        <a href="register.html">📝 Register</a>
         <a href="profile.html">👤 Profile</a>
         <a href="community.html">🌍 Community</a>
         <a href="signup.html">✍️ Volunteer Signup</a>
@@ -88,38 +98,56 @@
     <!-- Main Content -->
     <div class="content">
         <div class="container">
-            <h2>Set Up Your Profile</h2>
-            <input type="text" id="name" placeholder="Full Name">
-            <input type="text" id="year" placeholder="Year in College">
-            <input type="text" id="contact" placeholder="Email or Phone">
-            <textarea id="bio" placeholder="Short Bio"></textarea>
-            <button class="btn" onclick="saveProfile()">Save Profile</button>
-            <button class="btn" onclick="goToCommunity()">Go to Community</button>
+            <h2>Your Profile</h2>
+            <p><strong>Name:</strong> <span id="profileName"></span></p>
+            <p><strong>Year:</strong> <span id="profileYear"></span></p>
+            <p><strong>Contact:</strong> <span id="profileContact"></span></p>
+            <p><strong>Bio:</strong> <span id="profileBio"></span></p>
+
+            <h3>Upload Event Pictures</h3>
+            <input type="file" id="imageUpload" accept="image/*" multiple>
+            <button class="btn" onclick="uploadImages()">Upload</button>
+
+            <h3>Gallery</h3>
+            <div class="gallery" id="gallery"></div>
         </div>
     </div>
 
     <script>
-        let userProfile = JSON.parse(localStorage.getItem("fwop_profile")) || {};
+        let profile = JSON.parse(localStorage.getItem("fwop_profile")) || {};
+        document.getElementById("profileName").textContent = profile.name || "N/A";
+        document.getElementById("profileYear").textContent = profile.year || "N/A";
+        document.getElementById("profileContact").textContent = profile.contact || "N/A";
+        document.getElementById("profileBio").textContent = profile.bio || "N/A";
 
-        document.getElementById("name").value = userProfile.name || "";
-        document.getElementById("year").value = userProfile.year || "";
-        document.getElementById("contact").value = userProfile.contact || "";
-        document.getElementById("bio").value = userProfile.bio || "";
+        function uploadImages() {
+            let input = document.getElementById("imageUpload");
+            let gallery = document.getElementById("gallery");
+            let storedImages = JSON.parse(localStorage.getItem("fwop_gallery")) || [];
 
-        function saveProfile() {
-            let profileData = {
-                name: document.getElementById("name").value,
-                year: document.getElementById("year").value,
-                contact: document.getElementById("contact").value,
-                bio: document.getElementById("bio").value
-            };
-            localStorage.setItem("fwop_profile", JSON.stringify(profileData));
-            alert("Profile saved!");
+            for (let file of input.files) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    storedImages.push(e.target.result);
+                    localStorage.setItem("fwop_gallery", JSON.stringify(storedImages));
+                    displayGallery();
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
-        function goToCommunity() {
-            window.location.href = "community.html";
+        function displayGallery() {
+            let gallery = document.getElementById("gallery");
+            gallery.innerHTML = "";
+            let storedImages = JSON.parse(localStorage.getItem("fwop_gallery")) || [];
+            storedImages.forEach(imgSrc => {
+                let img = document.createElement("img");
+                img.src = imgSrc;
+                gallery.appendChild(img);
+            });
         }
+
+        displayGallery();
     </script>
 
 </body>
