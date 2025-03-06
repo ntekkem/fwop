@@ -38,5 +38,114 @@
         }
         .sidebar a:hover {
             background-color: #005bb5;
-            border-radius: 5
+            border-radius: 5px;
+        }
 
+        /* Main Content */
+        .content {
+            margin-left: 240px;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .btn {
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px;
+        }
+        .btn:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <a href="index.html">🏠 Home</a>
+        <a href="profile.html">👤 Profile</a>
+        <a href="community.html">🌎 Community</a>
+        <a href="signup.html">✍ Volunteer Signup</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="container">
+            <h2>FWOP Volunteer Signup</h2>
+
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            
+            <select id="date">
+                <option value="March 21, 2025">March 21, 2025 (Friday)</option>
+                <option value="March 28, 2025">March 28, 2025 (Friday)</option>
+                <option value="April 4, 2025">April 4, 2025 (Friday)</option>
+            </select>
+            <select id="time">
+                <option value="10:00 AM">10:00 AM - 11:00 AM</option>
+                <option value="11:00 AM">11:00 AM - 12:00 PM</option>
+                <option value="12:00 PM">12:00 PM - 1:00 PM</option>
+                <option value="1:00 PM">1:00 PM - 2:00 PM</option>
+                <option value="2:00 PM">2:00 PM - 3:00 PM</option>
+                <option value="3:00 PM">3:00 PM - 4:00 PM</option>
+                <option value="4:00 PM">4:00 PM - 5:00 PM</option>
+                <option value="5:00 PM">5:00 PM - 6:00 PM</option>
+                <option value="6:00 PM">6:00 PM - 7:00 PM</option>
+                <option value="7:00 PM">7:00 PM - 8:00 PM</option>
+            </select>
+            
+            <button class="btn" onclick="submitForm()">Sign Up</button>
+        </div>
+    </div>
+
+    <script>
+        function submitForm() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let date = document.getElementById("date").value;
+            let time = document.getElementById("time").value;
+
+            if (name === "" || email === "") {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            fetch("https://script.google.com/macros/s/AKfycbwwZbaYiJKqzjRbhhrs6ZjKOYXoQHmd-WxPIDdeR4BqxPmXcJTi-qJJlMVqdJugItbMnw/exec", {
+                method: "POST",
+                body: JSON.stringify({ name, email, date, time, status: "Signed Up" }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === "Success") {
+                    alert("You have successfully signed up!");
+                } else {
+                    alert("There was an error signing up.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+
+</body>
+</html>
