@@ -4,20 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FWOP - Profile</title>
-
+    
     <style>
-        /* Sidebar Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
             background-color: #f4f4f4;
+            display: flex;
         }
         .sidebar {
             height: 100vh;
             width: 200px;
-            background-color: #008000;
+            background-color: #176d28;
             color: white;
             padding: 20px;
             position: fixed;
@@ -34,11 +33,9 @@
             margin: 10px 0;
         }
         .sidebar a:hover {
-            background-color: #005500;
+            background-color: #135622;
             border-radius: 5px;
         }
-
-        /* Main Content */
         .content {
             margin-left: 220px;
             padding: 20px;
@@ -46,33 +43,45 @@
             text-align: center;
         }
         .container {
-            max-width: 600px;
+            max-width: 500px;
             margin: auto;
             padding: 20px;
-            border: 1px solid #008000;
+            border: 1px solid #176d28;
             border-radius: 5px;
             background: white;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 50px;
         }
-        input, textarea, button {
-            width: 100%;
+        .profile-info {
+            text-align: left;
+            font-size: 18px;
             padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #008000;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+        .bio {
+            white-space: pre-line; /* PRESERVES LINE BREAKS */
+            font-size: 16px;
+            color: #333;
+            padding: 10px;
             border-radius: 5px;
         }
         .btn {
-            background-color: #008000;
+            background-color: #176d28;
             color: white;
             cursor: pointer;
             border: none;
+            padding: 10px;
+            margin: 5px;
+            width: 100%;
+            border-radius: 5px;
         }
         .btn:hover {
-            background-color: #005500;
+            background-color: #135622;
         }
         .gallery {
-            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .gallery img {
             width: 100px;
@@ -81,31 +90,58 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- Sidebar Menu -->
+    <!-- Sidebar Navigation -->
     <div class="sidebar">
         <h2>Menu</h2>
-        <a href="register.html">📝 Register</a>
+        <a href="register.html">📋 Register</a>
         <a href="profile.html">👤 Profile</a>
         <a href="community.html">🌍 Community</a>
         <a href="signup.html">✍️ Volunteer Signup</a>
     </div>
 
-    <!-- Main Content -->
+    <!-- Profile Page Content -->
     <div class="content">
         <div class="container">
             <h2>Your Profile</h2>
-            <p><strong>Name:</strong> <span id="profileName"></span></p>
-            <p><strong>Year:</strong> <span id="profileYear"></span></p>
-            <p><strong>Contact:</strong> <span id="profileContact"></span></p>
-            <p><strong>Bio:</strong> <span id="profileBio"></span></p>
+            <div class="profile-info">
+                <strong>Name:</strong> <span id="profile-name"></span><br>
+                <strong>Year:</strong> <span id="profile-year"></span><br>
+                <strong>Contact:</strong> <span id="profile-contact"></span><br>
+                <strong>Bio:</strong> <p class="bio" id="profile-bio"></p>
+            </div>
 
             <h3>Upload Event Pictures</h3>
-            <input type="file" id="imageUpload" accept="image/*" multiple>
+            <input type="file" id="imageUpload" multiple>
             <button class="btn" onclick="uploadImages()">Upload</button>
 
             <h3>Gallery</h3>
@@ -113,41 +149,73 @@
         </div>
     </div>
 
+    <!-- Modal for Enlarged Images -->
+    <div class="modal" id="imageModal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modalImage">
+    </div>
+
     <script>
-        let profile = JSON.parse(localStorage.getItem("fwop_profile")) || {};
-        document.getElementById("profileName").textContent = profile.name || "N/A";
-        document.getElementById("profileYear").textContent = profile.year || "N/A";
-        document.getElementById("profileContact").textContent = profile.contact || "N/A";
-        document.getElementById("profileBio").textContent = profile.bio || "N/A";
+        // Load saved profile data
+        function loadProfile() {
+            let profile = JSON.parse(localStorage.getItem("fwop_profile"));
 
-        function uploadImages() {
-            let input = document.getElementById("imageUpload");
-            let gallery = document.getElementById("gallery");
-            let storedImages = JSON.parse(localStorage.getItem("fwop_gallery")) || [];
-
-            for (let file of input.files) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    storedImages.push(e.target.result);
-                    localStorage.setItem("fwop_gallery", JSON.stringify(storedImages));
-                    displayGallery();
-                };
-                reader.readAsDataURL(file);
+            if (profile) {
+                document.getElementById("profile-name").innerText = profile.name || "Not Set";
+                document.getElementById("profile-year").innerText = profile.year || "Not Set";
+                document.getElementById("profile-contact").innerText = profile.contact || "Not Set";
+                document.getElementById("profile-bio").innerText = profile.bio || "No bio available.";
+                loadGallery();
+            } else {
+                alert("No profile found. Please register.");
+                window.location.href = "register.html";
             }
         }
 
-        function displayGallery() {
-            let gallery = document.getElementById("gallery");
-            gallery.innerHTML = "";
-            let storedImages = JSON.parse(localStorage.getItem("fwop_gallery")) || [];
-            storedImages.forEach(imgSrc => {
+        // Upload and display images in gallery
+        function uploadImages() {
+            let files = document.getElementById("imageUpload").files;
+            let gallery = JSON.parse(localStorage.getItem("fwop_gallery")) || [];
+
+            for (let i = 0; i < files.length; i++) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    gallery.push(e.target.result);
+                    localStorage.setItem("fwop_gallery", JSON.stringify(gallery));
+                    loadGallery();
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        }
+
+        // Load images into gallery
+        function loadGallery() {
+            let gallery = JSON.parse(localStorage.getItem("fwop_gallery")) || [];
+            let galleryDiv = document.getElementById("gallery");
+            galleryDiv.innerHTML = "";
+
+            gallery.forEach((imgSrc, index) => {
                 let img = document.createElement("img");
                 img.src = imgSrc;
-                gallery.appendChild(img);
+                img.onclick = function () { openModal(imgSrc); };
+                galleryDiv.appendChild(img);
             });
         }
 
-        displayGallery();
+        // Open image in full view
+        function openModal(imageSrc) {
+            let modal = document.getElementById("imageModal");
+            document.getElementById("modalImage").src = imageSrc;
+            modal.style.display = "flex";
+        }
+
+        // Close full view modal
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+
+        // Run function to load profile on page load
+        window.onload = loadProfile;
     </script>
 
 </body>
