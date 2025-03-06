@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FWOP - Community</title>
-    
+
     <style>
         /* Sidebar Styles */
         body {
@@ -17,7 +17,7 @@
         .sidebar {
             height: 100vh;
             width: 200px;
-            background-color: #008000; /* Green Theme */
+            background-color: #008000;
             color: white;
             padding: 20px;
             position: fixed;
@@ -77,11 +77,43 @@
             margin-top: 10px;
             background: white;
             text-align: left;
+            position: relative;
         }
         .post img {
             max-width: 100%;
             border-radius: 5px;
             margin-top: 10px;
+        }
+        .reactions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .reaction-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: gray;
+        }
+        .edit-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .edit-delete button {
+            font-size: 12px;
+            padding: 2px 5px;
+        }
+        .username {
+            font-weight: bold;
+        }
+        .year {
+            font-style: italic;
+            color: darkblue;
         }
     </style>
 </head>
@@ -111,6 +143,7 @@
 
     <script>
         let user = JSON.parse(localStorage.getItem("fwop_user"));
+        let profile = JSON.parse(localStorage.getItem("fwop_profile")) || { year: "Unknown Year" };
 
         if (!user || !user.name) {
             window.location.href = "profile.html"; 
@@ -127,9 +160,14 @@
             }
 
             let post = {
+                id: Date.now(),
                 name: user.name,
+                year: profile.year,
                 content: content,
-                image: ""
+                image: "",
+                timestamp: new Date().toLocaleString(),
+                reactions: { 👍: 0, ❤️: 0, 😂: 0, 🔥: 0 },
+                replies: []
             };
 
             if (fileInput.files.length > 0) {
@@ -162,14 +200,50 @@
             posts.forEach(post => {
                 let postDiv = document.createElement("div");
                 postDiv.classList.add("post");
-                postDiv.innerHTML = `<strong>${post.name}</strong><p>${post.content}</p>`;
-                if (post.image) {
-                    let img = document.createElement("img");
-                    img.src = post.image;
-                    postDiv.appendChild(img);
-                }
+                postDiv.innerHTML = `
+                    <div class="edit-delete">
+                        <button onclick="editPost(${post.id})">✏️</button>
+                        <button onclick="deletePost(${post.id})">🗑️</button>
+                    </div>
+                    <span class="username">${post.name} <span class="year">(${post.year})</span></span>
+                    <p>${post.content}</p>
+                    ${post.image ? `<img src="${post.image}" alt="Post Image">` : ""}
+                    <p class="timestamp">${post.timestamp}</p>
+                    <div class="reactions">
+                        <button class="reaction-btn" onclick="react(${post.id}, '👍')">👍 ${post.reactions['👍']}</button>
+                        <button class="reaction-btn" onclick="react(${post.id}, '❤️')">❤️ ${post.reactions['❤️']}</button>
+                        <button class="reaction-btn" onclick="react(${post.id}, '😂')">😂 ${post.reactions['😂']}</button>
+                        <button class="reaction-btn" onclick="react(${post.id}, '🔥')">🔥 ${post.reactions['🔥']}</button>
+                    </div>
+                `;
                 postsContainer.appendChild(postDiv);
             });
+        }
+
+        function editPost(id) {
+            let posts = JSON.parse(localStorage.getItem("fwop_posts"));
+            let post = posts.find(p => p.id === id);
+            let newContent = prompt("Edit your post:", post.content);
+            if (newContent !== null) {
+                post.content = newContent;
+                localStorage.setItem("fwop_posts", JSON.stringify(posts));
+                displayPosts();
+            }
+        }
+
+        function deletePost(id) {
+            let posts = JSON.parse(localStorage.getItem("fwop_posts"));
+            posts = posts.filter(p => p.id !== id);
+            localStorage.setItem("fwop_posts", JSON.stringify(posts));
+            displayPosts();
+        }
+
+        function react(id, emoji) {
+            let posts = JSON.parse(localStorage.getItem("fwop_posts"));
+            let post = posts.find(p => p.id === id);
+            post.reactions[emoji]++;
+            localStorage.setItem("fwop_posts", JSON.stringify(posts));
+            displayPosts();
         }
 
         displayPosts();
