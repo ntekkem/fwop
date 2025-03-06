@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FWOP - Community Discussion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #005bb5;
+        }
+        .post {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            background: #fff;
+            border-radius: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 id="communityTitle"></h2>
+        <textarea id="postContent" placeholder="Write something..."></textarea>
+        <button class="btn" onclick="postToCommunity()">Post</button>
+
+        <h3>Discussion</h3>
+        <div id="postList"></div>
+    </div>
+
+    <script>
+        let params = new URLSearchParams(window.location.search);
+        let communityName = params.get("community");
+
+        document.getElementById("communityTitle").innerText = `Community: ${communityName}`;
+
+        function postToCommunity() {
+            let content = document.getElementById("postContent").value.trim();
+            if (content === "") return;
+
+            let posts = JSON.parse(localStorage.getItem(`fwop_posts_${communityName}`)) || [];
+            let user = JSON.parse(localStorage.getItem("fwop_user"));
+
+            posts.push({ user: user.name, content: content, time: new Date().toLocaleString() });
+            localStorage.setItem(`fwop_posts_${communityName}`, JSON.stringify(posts));
+
+            document.getElementById("postContent").value = "";
+            loadPosts();
+        }
+
+        function loadPosts() {
+            let postList = document.getElementById("postList");
+            postList.innerHTML = "";
+
+            let posts = JSON.parse(localStorage.getItem(`fwop_posts_${communityName}`)) || [];
+            posts.forEach((post, index) => {
+                let div = document.createElement("div");
+                div.classList.add("post");
+                div.innerHTML = `<b>${post.user}</b> <br> ${post.content} <br> <small>${post.time}</small>`;
+                postList.appendChild(div);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            loadPosts();
+        });
+    </script>
+
+</body>
+</html>
