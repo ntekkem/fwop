@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FWOP - Community</title>
+    <title>FWOP - Communities</title>
 
     <style>
-        /* Sidebar Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
             background-color: #f4f4f4;
+            display: flex;
         }
         .sidebar {
             height: 100vh;
             width: 200px;
-            background-color: #008000;
+            background-color: #176d28;
             color: white;
             padding: 20px;
             position: fixed;
@@ -34,11 +33,9 @@
             margin: 10px 0;
         }
         .sidebar a:hover {
-            background-color: #005500;
+            background-color: #135622;
             border-radius: 5px;
         }
-
-        /* Main Content */
         .content {
             margin-left: 220px;
             padding: 20px;
@@ -49,130 +46,211 @@
             max-width: 600px;
             margin: auto;
             padding: 20px;
-            border: 1px solid #008000;
+            border: 1px solid #176d28;
             border-radius: 5px;
             background: white;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 50px;
-        }
-        textarea, input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #008000;
-            border-radius: 5px;
-        }
-        .btn {
-            background-color: #008000;
-            color: white;
-            cursor: pointer;
-            border: none;
-        }
-        .btn:hover {
-            background-color: #005500;
         }
         .post {
             border: 1px solid #ddd;
             padding: 10px;
             margin-top: 10px;
+            border-radius: 5px;
             background: white;
             text-align: left;
-            position: relative;
         }
-        .timestamp {
-            font-size: 12px;
-            color: gray;
+        .post .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
         }
-        .username {
-            font-weight: bold;
+        .btn {
+            background-color: #176d28;
+            color: white;
+            border: none;
+            padding: 5px 10px;
             cursor: pointer;
-            color: #0073e6;
+            border-radius: 5px;
+            margin: 3px;
         }
-        .username:hover {
-            text-decoration: underline;
+        .btn:hover {
+            background-color: #135622;
         }
-        .year {
-            font-style: italic;
-            color: darkblue;
+        .reaction {
+            cursor: pointer;
+            font-size: 18px;
+            margin-right: 10px;
         }
-        .location {
-            font-size: 12px;
-            color: #555;
+        .reply-section {
+            margin-left: 20px;
+            border-left: 2px solid #ddd;
+            padding-left: 10px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Sidebar Menu -->
+    <!-- Sidebar -->
     <div class="sidebar">
         <h2>Menu</h2>
-        <a href="index.html">🏠 Home</a>
+        <a href="register.html">📋 Register</a>
         <a href="profile.html">👤 Profile</a>
-        <a href="community.html">🌍 Community</a>
+        <a href="community.html">🌍 Communities</a>
         <a href="signup.html">✍️ Volunteer Signup</a>
     </div>
 
-    <!-- Main Content -->
+    <!-- Community Page Content -->
     <div class="content">
         <div class="container">
-            <h2>Community</h2>
+            <h2>Communities</h2>
+            <input type="text" id="communityName" placeholder="Create a new community">
+            <button class="btn" onclick="createCommunity()">Create</button>
+
+            <h3>Join a Community</h3>
+            <select id="communityList"></select>
+            <button class="btn" onclick="joinCommunity()">Join</button>
+
+            <h3>Post in <span id="currentCommunity">None</span></h3>
             <textarea id="postContent" placeholder="Write something..."></textarea>
-            <input type="text" id="postLocation" placeholder="Location (Optional)">
+            <input type="file" id="postImage" multiple>
             <button class="btn" onclick="submitPost()">Post</button>
-            <div id="posts"></div>
+
+            <h3>Community Feed</h3>
+            <div id="feed"></div>
         </div>
     </div>
 
     <script>
-        let userProfile = JSON.parse(localStorage.getItem("fwop_profile")) || {};
-
-        function submitPost() {
-            let content = document.getElementById("postContent").value.trim();
-            let location = document.getElementById("postLocation").value.trim();
-            if (content === "") {
-                alert("Write something!");
-                return;
-            }
-
-            let post = {
-                id: Date.now(),
-                name: userProfile.name || "Anonymous",
-                year: userProfile.year || "Unknown",
-                location: location || "Location not provided",
-                content: content,
-                timestamp: new Date().toLocaleString()
-            };
-
-            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
-            posts.unshift(post);
-            localStorage.setItem("fwop_posts", JSON.stringify(posts));
-            displayPosts();
+        let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
+        let currentCommunity = localStorage.getItem("fwop_currentCommunity") || "None";
+        document.getElementById("currentCommunity").innerText = currentCommunity;
+        
+        function createCommunity() {
+            let name = document.getElementById("communityName").value.trim();
+            if (name === "" || communities.includes(name)) return;
+            communities.push(name);
+            localStorage.setItem("fwop_communities", JSON.stringify(communities));
+            updateCommunityList();
         }
 
-        function displayPosts() {
-            let postsContainer = document.getElementById("posts");
-            postsContainer.innerHTML = "";
-            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
-
-            posts.forEach(post => {
-                let postDiv = document.createElement("div");
-                postDiv.classList.add("post");
-                postDiv.innerHTML = `
-                    <span class="username" onclick="goToProfile()">${post.name} <span class="year">(${post.year})</span></span>
-                    <p class="location">${post.location}</p>
-                    <p>${post.content}</p>
-                    <p class="timestamp">${post.timestamp}</p>
-                `;
-                postsContainer.appendChild(postDiv);
+        function updateCommunityList() {
+            let list = document.getElementById("communityList");
+            list.innerHTML = "";
+            communities.forEach(name => {
+                let option = document.createElement("option");
+                option.value = name;
+                option.innerText = name;
+                list.appendChild(option);
             });
         }
 
-        function goToProfile() {
-            window.location.href = "profile.html";
+        function joinCommunity() {
+            let name = document.getElementById("communityList").value;
+            if (!name) return;
+            localStorage.setItem("fwop_currentCommunity", name);
+            document.getElementById("currentCommunity").innerText = name;
+            loadFeed();
         }
 
-        displayPosts();
+        function submitPost() {
+            if (currentCommunity === "None") {
+                alert("Please join a community first.");
+                return;
+            }
+
+            let content = document.getElementById("postContent").value.trim();
+            let images = document.getElementById("postImage").files;
+            if (content === "" && images.length === 0) return;
+
+            let post = {
+                id: Date.now(),
+                community: currentCommunity,
+                content: content,
+                images: [],
+                reactions: { up: 0, down: 0 },
+                replies: []
+            };
+
+            for (let file of images) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    post.images.push(e.target.result);
+                    localStorage.setItem("fwop_posts", JSON.stringify(posts));
+                    loadFeed();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
+            posts.push(post);
+            localStorage.setItem("fwop_posts", JSON.stringify(posts));
+            loadFeed();
+        }
+
+        function loadFeed() {
+            let feed = document.getElementById("feed");
+            feed.innerHTML = "";
+            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
+            posts.filter(post => post.community === currentCommunity).forEach(post => {
+                let postDiv = document.createElement("div");
+                postDiv.classList.add("post");
+                postDiv.innerHTML = `
+                    <p>${post.content}</p>
+                    ${post.images.map(img => `<img src="${img}" width="100">`).join("")}
+                    <div class="actions">
+                        <span class="reaction" onclick="react('${post.id}', 'up')">👍 ${post.reactions.up}</span>
+                        <span class="reaction" onclick="react('${post.id}', 'down')">👎 ${post.reactions.down}</span>
+                        <button class="btn" onclick="editPost('${post.id}')">Edit</button>
+                        <button class="btn" onclick="deletePost('${post.id}')">Delete</button>
+                        <button class="btn" onclick="reply('${post.id}')">Reply</button>
+                    </div>
+                    <div id="replies-${post.id}" class="reply-section">
+                        ${post.replies.map(reply => `<p>${reply}</p>`).join("")}
+                    </div>
+                `;
+                feed.appendChild(postDiv);
+            });
+        }
+
+        function react(postId, type) {
+            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
+            let post = posts.find(p => p.id == postId);
+            post.reactions[type]++;
+            localStorage.setItem("fwop_posts", JSON.stringify(posts));
+            loadFeed();
+        }
+
+        function editPost(postId) {
+            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
+            let post = posts.find(p => p.id == postId);
+            let newText = prompt("Edit your post:", post.content);
+            if (newText) {
+                post.content = newText;
+                localStorage.setItem("fwop_posts", JSON.stringify(posts));
+                loadFeed();
+            }
+        }
+
+        function deletePost(postId) {
+            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
+            posts = posts.filter(p => p.id != postId);
+            localStorage.setItem("fwop_posts", JSON.stringify(posts));
+            loadFeed();
+        }
+
+        function reply(postId) {
+            let replyText = prompt("Write a reply:");
+            if (!replyText) return;
+            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
+            let post = posts.find(p => p.id == postId);
+            post.replies.push(replyText);
+            localStorage.setItem("fwop_posts", JSON.stringify(posts));
+            loadFeed();
+        }
+
+        updateCommunityList();
+        loadFeed();
     </script>
 
 </body>
