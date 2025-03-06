@@ -49,7 +49,7 @@
             max-width: 600px;
             margin: auto;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #008000;
             border-radius: 5px;
             background: white;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -59,7 +59,7 @@
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            border: 1px solid #ddd;
+            border: 1px solid #008000;
             border-radius: 5px;
         }
         .btn {
@@ -79,18 +79,17 @@
             text-align: left;
             position: relative;
         }
-        .thumbnail {
-            max-width: 100px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
         .timestamp {
             font-size: 12px;
             color: gray;
         }
         .username {
             font-weight: bold;
+            cursor: pointer;
+            color: #0073e6;
+        }
+        .username:hover {
+            text-decoration: underline;
         }
         .year {
             font-style: italic;
@@ -99,18 +98,6 @@
         .location {
             font-size: 12px;
             color: #555;
-        }
-        .emoji-reactions span {
-            cursor: pointer;
-            font-size: 18px;
-            margin-right: 10px;
-        }
-        .actions {
-            margin-top: 10px;
-        }
-        .actions button {
-            margin-right: 5px;
-            font-size: 12px;
         }
     </style>
 </head>
@@ -132,62 +119,31 @@
             <h2>Community</h2>
             <textarea id="postContent" placeholder="Write something..."></textarea>
             <input type="text" id="postLocation" placeholder="Location (Optional)">
-            <input type="file" id="imageUpload" accept="image/*" multiple>
             <button class="btn" onclick="submitPost()">Post</button>
-            
             <div id="posts"></div>
         </div>
     </div>
 
     <script>
-        let user = JSON.parse(localStorage.getItem("fwop_user")) || { name: "Guest" };
-        let profile = JSON.parse(localStorage.getItem("fwop_profile")) || { year: "Unknown Year" };
+        let userProfile = JSON.parse(localStorage.getItem("fwop_profile")) || {};
 
         function submitPost() {
             let content = document.getElementById("postContent").value.trim();
             let location = document.getElementById("postLocation").value.trim();
-            let fileInput = document.getElementById("imageUpload");
-            let postsContainer = document.getElementById("posts");
-
-            if (content === "" && fileInput.files.length === 0) {
-                alert("Write something or add an image!");
+            if (content === "") {
+                alert("Write something!");
                 return;
             }
 
             let post = {
                 id: Date.now(),
-                name: user.name,
-                year: profile.year,
-                location: location !== "" ? location : "Location not provided",
+                name: userProfile.name || "Anonymous",
+                year: userProfile.year || "Unknown",
+                location: location || "Location not provided",
                 content: content,
-                images: [],
-                timestamp: new Date().toLocaleString(),
-                reactions: {},
-                reactedBy: {}
+                timestamp: new Date().toLocaleString()
             };
 
-            let imagePromises = [];
-            for (let file of fileInput.files) {
-                let reader = new FileReader();
-                imagePromises.push(new Promise(resolve => {
-                    reader.onload = function (e) {
-                        post.images.push(e.target.result);
-                        resolve();
-                    };
-                    reader.readAsDataURL(file);
-                }));
-            }
-
-            Promise.all(imagePromises).then(() => {
-                saveAndDisplayPost(post);
-            });
-
-            document.getElementById("postContent").value = "";
-            document.getElementById("postLocation").value = "";
-            fileInput.value = "";
-        }
-
-        function saveAndDisplayPost(post) {
             let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
             posts.unshift(post);
             localStorage.setItem("fwop_posts", JSON.stringify(posts));
@@ -199,39 +155,21 @@
             postsContainer.innerHTML = "";
             let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
 
-            posts.forEach((post, postIndex) => {
+            posts.forEach(post => {
                 let postDiv = document.createElement("div");
                 postDiv.classList.add("post");
                 postDiv.innerHTML = `
-                    <span class="username">${post.name} <span class="year">(${post.year})</span></span>
+                    <span class="username" onclick="goToProfile()">${post.name} <span class="year">(${post.year})</span></span>
                     <p class="location">${post.location}</p>
                     <p>${post.content}</p>
-                    <div class="thumbnails">${post.images.map(img => `<img src="${img}" class="thumbnail">`).join('')}</div>
                     <p class="timestamp">${post.timestamp}</p>
-                    <div class="emoji-reactions">
-                        ${["👍", "❤️", "😂", "😮", "😢", "👎"].map(emoji => `
-                            <span onclick="reactToPost(${postIndex}, '${emoji}')">
-                                ${emoji} ${post.reactions[emoji] || 0}
-                            </span>
-                        `).join('')}
-                    </div>
-                    <div class="actions">
-                        <button onclick="editPost(${postIndex})">Edit</button>
-                        <button onclick="deletePost(${postIndex})">Delete</button>
-                    </div>
                 `;
                 postsContainer.appendChild(postDiv);
             });
         }
 
-        function reactToPost(index, emoji) {
-            let posts = JSON.parse(localStorage.getItem("fwop_posts")) || [];
-            if (!posts[index].reactedBy[user.name]) {
-                posts[index].reactedBy[user.name] = emoji;
-                posts[index].reactions[emoji] = (posts[index].reactions[emoji] || 0) + 1;
-                localStorage.setItem("fwop_posts", JSON.stringify(posts));
-                displayPosts();
-            }
+        function goToProfile() {
+            window.location.href = "profile.html";
         }
 
         displayPosts();
