@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FWOP Volunteer Sign-up</title>
+    <title>Future Without Poverty - Volunteer Signup</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,109 +12,134 @@
             text-align: center;
             background-color: #f4f4f4;
         }
-        .container {
-            max-width: 400px;
-            margin: 50px auto;
+        header {
+            background-color: #0073e6;
+            color: white;
             padding: 20px;
+            font-size: 24px;
+        }
+        .container {
+            padding: 20px;
+        }
+        .form-section {
             background: white;
+            padding: 20px;
+            margin: 20px auto;
             border-radius: 8px;
+            max-width: 400px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        .btn {
-            display: block;
+        .input-field {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
             background-color: #0073e6;
             color: white;
+            padding: 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            width: 100%;
         }
         .btn:hover {
             background-color: #005bb5;
         }
-        .hidden { display: none; }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <div class="container" id="login-container">
-        <h2>FWOP Login</h2>
-        <input type="text" id="name" placeholder="Full Name" required><br>
-        <input type="email" id="email" placeholder="Email" required><br>
-        <input type="tel" id="phone" placeholder="Phone Number" required><br>
-        <input type="password" id="password" placeholder="Password" required><br>
-        <button class="btn" onclick="signup()">Sign Up</button>
-        <button class="btn" onclick="login()">Login</button>
-    </div>
+    <header>
+        <a href="index.html">
+            <img src="logo.png" alt="FWOP Home" style="height: 50px;">
+        </a>
+    </header>
 
-    <div class="container hidden" id="welcome-container">
-        <h2>Welcome Back, <span id="username"></span>!</h2>
-        <button class="btn" onclick="showShifts()">Sign Up for Volunteer Shifts</button>
-    </div>
+    <div class="container">
+        <div id="login-section" class="form-section">
+            <h2>Sign Up / Log In</h2>
+            <input type="text" id="name" class="input-field" placeholder="Full Name">
+            <input type="email" id="email" class="input-field" placeholder="Email">
+            <input type="tel" id="phone" class="input-field" placeholder="Phone Number">
+            <button class="btn" onclick="submitLogin()">Submit</button>
+        </div>
 
-    <div class="container hidden" id="shifts-container">
-        <h2>Select a Volunteer Shift</h2>
-        <button class="btn" onclick="selectShift('March 10')">March 10</button>
-        <button class="btn" onclick="selectShift('March 15')">March 15</button>
-        <button class="btn" onclick="selectShift('March 20')">March 20</button>
-        <h3>Signed-up Volunteers:</h3>
-        <ul id="volunteers-list"></ul>
+        <div id="welcome-section" class="form-section hidden">
+            <h2>Welcome, <span id="username"></span>!</h2>
+            <button class="btn" onclick="showShifts()">Sign Up for Volunteer Shifts</button>
+        </div>
+
+        <div id="shifts-section" class="form-section hidden">
+            <h2>Select a Date</h2>
+            <button class="btn" onclick="selectDate('March 10, 2025')">March 10, 2025</button>
+            <button class="btn" onclick="selectDate('March 17, 2025')">March 17, 2025</button>
+            <div id="time-slots" class="hidden">
+                <h2>Select a Time Slot</h2>
+                <button class="btn" onclick="signUpShift('9:00 AM')">9:00 AM - 12:00 PM</button>
+                <button class="btn" onclick="signUpShift('1:00 PM')">1:00 PM - 4:00 PM</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        function signup() {
+        function submitLogin() {
             let name = document.getElementById("name").value;
             let email = document.getElementById("email").value;
             let phone = document.getElementById("phone").value;
-            let password = document.getElementById("password").value;
-            if (name && email && phone && password) {
-                localStorage.setItem("user", JSON.stringify({ name, email, phone, password }));
-                alert("Signup successful! Please log in.");
-            } else {
-                alert("Please fill in all fields.");
-            }
-        }
 
-        function login() {
-            let email = document.getElementById("email").value;
-            let password = document.getElementById("password").value;
-            let user = JSON.parse(localStorage.getItem("user"));
-            if (user && user.email === email && user.password === password) {
-                document.getElementById("login-container").classList.add("hidden");
-                document.getElementById("welcome-container").classList.remove("hidden");
-                document.getElementById("username").innerText = user.name;
-            } else {
-                alert("Invalid credentials. Please try again.");
+            if (!name || !email || !phone) {
+                alert("Please fill in all fields!");
+                return;
             }
+
+            localStorage.setItem("userName", name);
+            document.getElementById("username").innerText = name;
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("welcome-section").classList.remove("hidden");
+
+            // Send data to Google Sheets
+            fetch("YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL", {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name, email, phone })
+            });
         }
 
         function showShifts() {
-            document.getElementById("welcome-container").classList.add("hidden");
-            document.getElementById("shifts-container").classList.remove("hidden");
-            loadVolunteers();
+            document.getElementById("welcome-section").classList.add("hidden");
+            document.getElementById("shifts-section").classList.remove("hidden");
         }
 
-        function selectShift(date) {
-            let user = JSON.parse(localStorage.getItem("user"));
-            let volunteers = JSON.parse(localStorage.getItem("volunteers")) || {};
-            if (!volunteers[date]) {
-                volunteers[date] = [];
+        function selectDate(date) {
+            document.getElementById("time-slots").classList.remove("hidden");
+        }
+
+        function signUpShift(time) {
+            let name = localStorage.getItem("userName");
+            let selectedDate = document.querySelector("#shifts-section h2").innerText;
+
+            if (!name) {
+                alert("Please log in first.");
+                return;
             }
-            volunteers[date].push(user.name);
-            localStorage.setItem("volunteers", JSON.stringify(volunteers));
-            loadVolunteers();
-            alert("Signed up for " + date);
-        }
 
-        function loadVolunteers() {
-            let volunteers = JSON.parse(localStorage.getItem("volunteers")) || {};
-            let list = document.getElementById("volunteers-list");
-            list.innerHTML = "";
-            Object.keys(volunteers).forEach(date => {
-                let li = document.createElement("li");
-                li.innerText = date + ": " + volunteers[date].join(", ");
-                list.appendChild(li);
+            alert(`You signed up for ${time} on ${selectedDate}`);
+
+            fetch("YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL", {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name, date: selectedDate, time })
             });
         }
     </script>
