@@ -112,6 +112,40 @@
     <a href="community.html">🌍 Communities</a>
     <a href="signup.html">✍️ Volunteer Signup</a>
 </div>
+
+    <div class="container">
+    <h2>FWOP Volunteer Signup</h2>
+    <input type="text" id="volName" placeholder="Your Name">
+    <input type="email" id="volEmail" placeholder="Your Email">
+    <select id="volDate">
+        <option>March 21, 2025 (Friday)</option>
+        <option>March 22, 2025 (Saturday)</option>
+    </select>
+    <select id="volTime">
+        <option>10:00 AM - 11:00 AM</option>
+        <option>11:00 AM - 12:00 PM</option>
+    </select>
+    <input type="text" id="volLocation" placeholder="Location">
+    <button class="btn" onclick="signupShift()">Sign Up</button>
+</div>
+
+<script>
+    function signupShift() {
+        let shifts = JSON.parse(localStorage.getItem("fwop_shifts")) || [];
+        let newShift = {
+            name: document.getElementById("volName").value,
+            email: document.getElementById("volEmail").value,
+            date: document.getElementById("volDate").value,
+            time: document.getElementById("volTime").value,
+            location: document.getElementById("volLocation").value
+        };
+        shifts.push(newShift);
+        localStorage.setItem("fwop_shifts", JSON.stringify(shifts));
+        alert("Shift Signed Up!");
+        window.location.href = "shifts.html";
+    }
+</script>
+
 >
 
     <!-- Sidebar Menu -->
