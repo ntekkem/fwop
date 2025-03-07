@@ -6,119 +6,126 @@
     <title>Communities - FWOP</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-    <!-- Top Navigation Menu -->
-<nav class="top-nav">
-    <a href="index.html">🏠 Register</a>
-    <a href="profile.html">👤 Profile</a>
-    <a href="community.html">🌍 Communities</a>
-    <a href="signup.html">✍ Volunteer Signup</a>
-    <a href="shifts.html">📅 My Shifts</a>
-</nav>
-<div class="container">
-    <h2>Communities</h2>
-    <input type="text" id="newCommunity" placeholder="Community Name">
-    <button onclick="createCommunity()">Create</button>
-    
-    <h3>Join a Community</h3>
-    <div id="communityList"></div>
-</div>
-
-<script>
-    function createCommunity() {
-        let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
-        let newCommunity = document.getElementById("newCommunity").value;
-        if (newCommunity && !communities.includes(newCommunity)) {
-            communities.push(newCommunity);
-            localStorage.setItem("fwop_communities", JSON.stringify(communities));
-            alert("Community Created!");
-            location.reload();
-        } else {
-            alert("Community already exists or invalid name.");
-        }
-    }
-
-    function loadCommunities() {
-        let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
-        let communityDiv = document.getElementById("communityList");
-        communityDiv.innerHTML = "";
-        communities.forEach((comm) => {
-            communityDiv.innerHTML += `<div><strong>${comm}</strong> <button onclick="joinCommunity('${comm}')">Join</button></div>`;
-        });
-    }
-
-    function joinCommunity(comm) {
-        alert(`Joined ${comm}`);
-        window.location.href = `community_feed.html?community=${comm}`;
-    }
-
-    loadCommunities();
-</script>
-
-<style>
-    .top-nav {
-        background-color: #0073e6;
-        padding: 15px;
-        text-align: center;
-    }
-    .top-nav a {
-        color: white;
-        text-decoration: none;
-        padding: 10px 15px;
-        font-size: 18px;
-        margin: 5px;
-    }
-    .top-nav a:hover {
-        background-color: #005bb5;
-        border-radius: 5px;
-    }
-</style>
-
 <body>
-    <div class="sidebar">
-        <h2>Menu</h2>
-        <a href="index.html">📋 Register</a>
+
+    <!-- Top Navigation Menu -->
+    <nav class="top-nav">
+        <a href="index.html">🏠 Register</a>
         <a href="profile.html">👤 Profile</a>
         <a href="community.html">🌍 Communities</a>
-        <a href="signup.html">✍️ Volunteer Signup</a>
-    </div>
+        <a href="signup.html">✍ Volunteer Signup</a>
+        <a href="shifts.html">📅 My Shifts</a>
+        <a href="all_shifts.html">📌 All Shifts</a>
+    </nav>
 
-    <div class="content">
-        <h2>Create a Community</h2>
-        <input type="text" id="communityName" placeholder="Community Name">
+    <div class="container">
+        <h2>Communities</h2>
+        
+        <!-- Create a New Community -->
+        <input type="text" id="newCommunity" placeholder="Community Name">
         <button onclick="createCommunity()">Create</button>
-
-        <h2>Join a Community</h2>
+        
+        <!-- Join an Existing Community -->
+        <h3>Join a Community</h3>
         <div id="communityList"></div>
     </div>
 
     <script>
-        function createCommunity() {
-            let name = document.getElementById("communityName").value;
-            if (!name) return alert("Enter a community name!");
-
+        // Load communities from local storage
+        function loadCommunities() {
             let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
-            communities.push(name);
-            localStorage.setItem("fwop_communities", JSON.stringify(communities));
-            renderCommunities();
-        }
+            let communityDiv = document.getElementById("communityList");
+            communityDiv.innerHTML = "";
 
-        function renderCommunities() {
-            let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
-            let list = document.getElementById("communityList");
-            list.innerHTML = "";
-
-            communities.forEach(name => {
-                let div = document.createElement("div");
-                div.innerHTML = `<strong>${name}</strong> <button onclick="joinCommunity('${name}')">Join</button>`;
-                list.appendChild(div);
+            communities.forEach((comm) => {
+                communityDiv.innerHTML += `<div><strong>${comm}</strong> 
+                    <button onclick="joinCommunity('${comm}')">Join</button></div>`;
             });
         }
 
-        function joinCommunity(name) {
-            window.location.href = `community_feed.html?community=${encodeURIComponent(name)}`;
+        // Create a new community
+        function createCommunity() {
+            let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
+            let newCommunity = document.getElementById("newCommunity").value.trim();
+
+            if (!newCommunity) {
+                alert("Please enter a community name!");
+                return;
+            }
+            
+            if (communities.includes(newCommunity)) {
+                alert("Community already exists.");
+                return;
+            }
+
+            communities.push(newCommunity);
+            localStorage.setItem("fwop_communities", JSON.stringify(communities));
+            alert("Community Created!");
+            loadCommunities();
         }
 
-        renderCommunities();
+        // Join a community
+        function joinCommunity(comm) {
+            localStorage.setItem("currentCommunity", comm);
+            window.location.href = `community_feed.html?community=${encodeURIComponent(comm)}`;
+        }
+
+        loadCommunities();
     </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .top-nav {
+            background-color: #0073e6;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            margin: 5px;
+            display: inline-block;
+        }
+        
+        .top-nav a:hover {
+            background-color: #005bb5;
+            border-radius: 5px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        
+        button {
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #005bb5;
+        }
+    </style>
+
 </body>
 </html>
