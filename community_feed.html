@@ -14,6 +14,42 @@
     <a href="signup.html">✍ Volunteer Signup</a>
     <a href="shifts.html">📅 My Shifts</a>
 </nav>
+<div class="container">
+    <h2 id="communityTitle"></h2>
+    <textarea id="postText" placeholder="Write something..."></textarea>
+    <button onclick="postMessage()">Post</button>
+
+    <h3>Discussion</h3>
+    <div id="discussionList"></div>
+</div>
+
+<script>
+    let community = new URLSearchParams(window.location.search).get("community");
+    document.getElementById("communityTitle").innerText = `Community: ${community}`;
+
+    function postMessage() {
+        let posts = JSON.parse(localStorage.getItem(community)) || [];
+        let newPost = {
+            user: "Nikash Tekkem",
+            message: document.getElementById("postText").value,
+            timestamp: new Date().toLocaleString()
+        };
+        posts.push(newPost);
+        localStorage.setItem(community, JSON.stringify(posts));
+        loadPosts();
+    }
+
+    function loadPosts() {
+        let posts = JSON.parse(localStorage.getItem(community)) || [];
+        let postDiv = document.getElementById("discussionList");
+        postDiv.innerHTML = "";
+        posts.forEach((post) => {
+            postDiv.innerHTML += `<div><strong>${post.user}</strong><br>${post.message}<br><small>${post.timestamp}</small></div>`;
+        });
+    }
+
+    loadPosts();
+</script>
 
 <style>
     .top-nav {
