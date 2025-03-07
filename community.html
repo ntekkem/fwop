@@ -3,128 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FWOP - Communities</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 50px;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .btn {
-            background-color: #0073e6;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #005bb5;
-        }
-        .community {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 10px 0;
-            background: #fff;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .community:hover {
-            background: #f1f1f1;
-        }
-    </style>
+    <title>Communities - FWOP</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<<!-- Sidebar (Paste this inside the <body> tag in every HTML file) -->
-<div class="sidebar">
-    <h2>Menu</h2>
-    <a href="index.html">📋 Register</a>
-    <a href="profile.html">👤 Profile</a>
-    <a href="community.html">🌍 Communities</a>
-    <a href="signup.html">✍️ Volunteer Signup</a>
-</div>
->
+<body>
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <a href="index.html">📋 Register</a>
+        <a href="profile.html">👤 Profile</a>
+        <a href="community.html">🌍 Communities</a>
+        <a href="signup.html">✍️ Volunteer Signup</a>
+    </div>
 
-    <div class="container">
+    <div class="content">
         <h2>Create a Community</h2>
         <input type="text" id="communityName" placeholder="Community Name">
-        <button class="btn" onclick="createCommunity()">Create</button>
+        <button onclick="createCommunity()">Create</button>
 
         <h2>Join a Community</h2>
         <div id="communityList"></div>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            loadCommunities();
-        });
-
         function createCommunity() {
-            let name = document.getElementById("communityName").value.trim();
-            if (name === "") {
-                alert("Please enter a community name.");
-                return;
-            }
+            let name = document.getElementById("communityName").value;
+            if (!name) return alert("Enter a community name!");
 
             let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
-            if (communities.some(c => c.name === name)) {
-                alert("Community already exists.");
-                return;
-            }
-
-            communities.push({ name: name, members: [] });
+            communities.push(name);
             localStorage.setItem("fwop_communities", JSON.stringify(communities));
-            loadCommunities();
+            renderCommunities();
         }
 
-        function loadCommunities() {
-            let communityList = document.getElementById("communityList");
-            communityList.innerHTML = "";
-
+        function renderCommunities() {
             let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
-            communities.forEach((community, index) => {
+            let list = document.getElementById("communityList");
+            list.innerHTML = "";
+
+            communities.forEach(name => {
                 let div = document.createElement("div");
-                div.classList.add("community");
-                div.innerHTML = `${community.name} <br><button class='btn' onclick="joinCommunity(${index})">Join</button>`;
-                communityList.appendChild(div);
+                div.innerHTML = `<strong>${name}</strong> <button onclick="joinCommunity('${name}')">Join</button>`;
+                list.appendChild(div);
             });
         }
 
-        function joinCommunity(index) {
-            let user = JSON.parse(localStorage.getItem("fwop_user"));
-            if (!user) {
-                alert("Please register first.");
-                return;
-            }
-
-            let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
-            let community = communities[index];
-
-            if (!community.members.includes(user.name)) {
-                community.members.push(user.name);
-                localStorage.setItem("fwop_communities", JSON.stringify(communities));
-                alert(`You have joined ${community.name}!`);
-                window.location.href = `community_feed.html?community=${encodeURIComponent(community.name)}`;
-            } else {
-                alert("You are already a member.");
-            }
+        function joinCommunity(name) {
+            window.location.href = `community_feed.html?community=${encodeURIComponent(name)}`;
         }
-    </script>
 
+        renderCommunities();
+    </script>
 </body>
 </html>
