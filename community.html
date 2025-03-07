@@ -14,6 +14,45 @@
     <a href="signup.html">✍ Volunteer Signup</a>
     <a href="shifts.html">📅 My Shifts</a>
 </nav>
+<div class="container">
+    <h2>Communities</h2>
+    <input type="text" id="newCommunity" placeholder="Community Name">
+    <button onclick="createCommunity()">Create</button>
+    
+    <h3>Join a Community</h3>
+    <div id="communityList"></div>
+</div>
+
+<script>
+    function createCommunity() {
+        let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
+        let newCommunity = document.getElementById("newCommunity").value;
+        if (newCommunity && !communities.includes(newCommunity)) {
+            communities.push(newCommunity);
+            localStorage.setItem("fwop_communities", JSON.stringify(communities));
+            alert("Community Created!");
+            location.reload();
+        } else {
+            alert("Community already exists or invalid name.");
+        }
+    }
+
+    function loadCommunities() {
+        let communities = JSON.parse(localStorage.getItem("fwop_communities")) || [];
+        let communityDiv = document.getElementById("communityList");
+        communityDiv.innerHTML = "";
+        communities.forEach((comm) => {
+            communityDiv.innerHTML += `<div><strong>${comm}</strong> <button onclick="joinCommunity('${comm}')">Join</button></div>`;
+        });
+    }
+
+    function joinCommunity(comm) {
+        alert(`Joined ${comm}`);
+        window.location.href = `community_feed.html?community=${comm}`;
+    }
+
+    loadCommunities();
+</script>
 
 <style>
     .top-nav {
