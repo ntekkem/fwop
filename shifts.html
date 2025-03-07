@@ -1,0 +1,29 @@
+<div class="container">
+    <h2>My Volunteer Shifts</h2>
+    <div id="shiftsList"></div>
+</div>
+
+<script>
+    let shifts = JSON.parse(localStorage.getItem("fwop_shifts")) || [];
+    let shiftsDiv = document.getElementById("shiftsList");
+    if (shifts.length === 0) {
+        shiftsDiv.innerHTML = "<p>No shifts signed up yet.</p>";
+    } else {
+        shifts.forEach((shift, index) => {
+            shiftsDiv.innerHTML += `
+                <div class="shift">
+                    <strong>${shift.date} - ${shift.time}</strong><br>
+                    Location: ${shift.location}<br>
+                    <button onclick="removeShift(${index})">Remove</button>
+                </div>
+            `;
+        });
+    }
+
+    function removeShift(index) {
+        let shifts = JSON.parse(localStorage.getItem("fwop_shifts"));
+        shifts.splice(index, 1);
+        localStorage.setItem("fwop_shifts", JSON.stringify(shifts));
+        location.reload();
+    }
+</script>
