@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Volunteer Shifts - FWOP</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Top Navigation Menu -->
+    <nav class="top-nav">
+        <a href="index.html">🏠 Register</a>
+        <a href="profile.html">👤 Profile</a>
+        <a href="community.html">🌍 Communities</a>
+        <a href="signup.html">✍ Volunteer Signup</a>
+        <a href="shifts.html">📅 My Shifts</a>
+        <a href="all_shifts.html">📌 All Shifts</a>
+    </nav>
+
+    <div class="container">
+        <h2>All Volunteer Shifts</h2>
+        <div id="allShiftsList"></div>
+    </div>
+
+    <script>
+        function loadAllShifts() {
+            let shifts = JSON.parse(localStorage.getItem("fwop_shifts")) || [];
+            let shiftsDiv = document.getElementById("allShiftsList");
+
+            if (shifts.length === 0) {
+                shiftsDiv.innerHTML = "<p>No shifts scheduled yet.</p>";
+            } else {
+                shiftsDiv.innerHTML = ""; // Clear previous content
+
+                shifts.forEach((shift, index) => {
+                    let shiftElement = document.createElement("div");
+                    shiftElement.classList.add("shift");
+                    shiftElement.innerHTML = `
+                        <strong>${shift.date} - ${shift.time}</strong><br>
+                        <strong>Name:</strong> ${shift.name}<br>
+                        <strong>Email:</strong> ${shift.email}<br>
+                        <strong>Location:</strong> ${shift.location}<br>
+                    `;
+                    shiftsDiv.appendChild(shiftElement);
+                });
+            }
+        }
+
+        loadAllShifts();
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .top-nav {
+            background-color: #0073e6;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .top-nav a:hover {
+            background-color: #005bb5;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .shift {
+            background: #ffffff;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+    </style>
+
+</body>
+</html>
