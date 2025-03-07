@@ -24,36 +24,35 @@
     </div>
 
     <script>
-        function loadShifts() {
+        function loadMyShifts() {
             let shifts = JSON.parse(localStorage.getItem("fwop_shifts")) || [];
             let shiftsDiv = document.getElementById("shiftsList");
+            shiftsDiv.innerHTML = "";
 
             if (shifts.length === 0) {
                 shiftsDiv.innerHTML = "<p>No shifts signed up yet.</p>";
-            } else {
-                shiftsDiv.innerHTML = ""; // Clear previous content
+                return;
+            }
 
-                shifts.forEach((shift, index) => {
-                    let shiftElement = document.createElement("div");
-                    shiftElement.classList.add("shift");
-                    shiftElement.innerHTML = `
+            shifts.forEach((shift, index) => {
+                shiftsDiv.innerHTML += `
+                    <div class="shift">
                         <strong>${shift.date} - ${shift.time}</strong><br>
                         Location: ${shift.location}<br>
-                        <button class="remove-btn" onclick="removeShift(${index})">Remove</button>
-                    `;
-                    shiftsDiv.appendChild(shiftElement);
-                });
-            }
+                        <button class="remove-btn" onclick="removeShift(${index})">❌ Remove</button>
+                    </div>
+                `;
+            });
         }
 
         function removeShift(index) {
             let shifts = JSON.parse(localStorage.getItem("fwop_shifts"));
             shifts.splice(index, 1);
             localStorage.setItem("fwop_shifts", JSON.stringify(shifts));
-            loadShifts(); // Update UI without reloading page
+            loadMyShifts();
         }
 
-        loadShifts();
+        loadMyShifts();
     </script>
 
     <style>
@@ -86,7 +85,7 @@
         }
 
         .container {
-            max-width: 500px;
+            max-width: 400px;
             margin: 50px auto;
             padding: 20px;
             border: 1px solid #ddd;
@@ -96,27 +95,26 @@
         }
 
         .shift {
-            background: #ffffff;
-            padding: 15px;
-            margin-top: 10px;
-            border-radius: 5px;
+            background: #fff;
             border: 1px solid #ddd;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            text-align: left;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
         }
 
         .remove-btn {
-            background-color: #ff3b30;
+            background-color: red;
             color: white;
             border: none;
-            padding: 5px 10px;
             cursor: pointer;
+            padding: 5px;
             border-radius: 5px;
             margin-top: 5px;
         }
 
         .remove-btn:hover {
-            background-color: #c82333;
+            background-color: darkred;
         }
     </style>
 
