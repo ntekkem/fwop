@@ -3,114 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FWOP - Profile</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 50px;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .btn {
-            background-color: #0073e6;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #005bb5;
-        }
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin: 10px;
-        }
-    </style>
+    <title>Profile - FWOP</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<<!-- Sidebar (Paste this inside the <body> tag in every HTML file) -->
-<div class="sidebar">
-    <h2>Menu</h2>
-    <a href="index.html">📋 Register</a>
-    <a href="profile.html">👤 Profile</a>
-    <a href="community.html">🌍 Communities</a>
-    <a href="signup.html">✍️ Volunteer Signup</a>
-</div>
->
+<body>
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <a href="index.html">📋 Register</a>
+        <a href="profile.html">👤 Profile</a>
+        <a href="community.html">🌍 Communities</a>
+        <a href="signup.html">✍️ Volunteer Signup</a>
+    </div>
 
-    <div class="container">
-        <h2>Set Up Your Profile</h2>
-
-        <input type="text" id="name" placeholder="Full Name">
-        <input type="text" id="year" placeholder="Year in College">
-        <input type="text" id="contact" placeholder="Contact Info">
-        <textarea id="bio" placeholder="Short Bio"></textarea>
-
-        <h3>Select Your Avatar</h3>
-        <div>
-            <img src="maleavatar.png" class="avatar" onclick="selectAvatar('maleavatar.png')">
-            <img src="femaleavatar.png" class="avatar" onclick="selectAvatar('femaleavatar.png')">
-        </div>
-
-        <button class="btn" onclick="saveProfile()">Save Profile</button>
-        <button class="btn" onclick="goToCommunity()">Go to Community</button>
+    <div class="content">
+        <h2>Your Profile</h2>
+        <img id="avatar" src="maleavatar.png" width="100">
+        <p><strong>Name:</strong> <span id="profileName"></span></p>
+        <p><strong>Year:</strong> <span id="profileYear"></span></p>
+        <p><strong>Contact:</strong> <span id="profileContact"></span></p>
+        <p><strong>Bio:</strong> <span id="profileBio"></span></p>
     </div>
 
     <script>
-        function selectAvatar(avatar) {
-            localStorage.setItem("fwop_avatar", avatar);
-            alert("Avatar selected!");
-        }
-
-        function saveProfile() {
-            let name = document.getElementById("name").value.trim();
-            let year = document.getElementById("year").value.trim();
-            let contact = document.getElementById("contact").value.trim();
-            let bio = document.getElementById("bio").value.trim();
-            let avatar = localStorage.getItem("fwop_avatar") || "maleavatar.png"; // Default avatar
-
-            if (name === "" || year === "" || contact === "") {
-                alert("Please fill in all required fields.");
-                return;
-            }
-
-            let profileData = { name, year, contact, bio, avatar };
-            localStorage.setItem("fwop_profile", JSON.stringify(profileData));
-
-            alert("Profile saved!");
-        }
-
-        function goToCommunity() {
-            window.location.href = "community.html";
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            let savedProfile = JSON.parse(localStorage.getItem("fwop_profile"));
-            if (savedProfile) {
-                document.getElementById("name").value = savedProfile.name;
-                document.getElementById("year").value = savedProfile.year;
-                document.getElementById("contact").value = savedProfile.contact;
-                document.getElementById("bio").value = savedProfile.bio;
-            }
-        });
+        let profile = JSON.parse(localStorage.getItem("fwop_profile")) || {};
+        document.getElementById("profileName").innerText = profile.name || "N/A";
+        document.getElementById("profileYear").innerText = profile.year || "N/A";
+        document.getElementById("profileContact").innerText = profile.contact || "N/A";
+        document.getElementById("profileBio").innerText = profile.bio ? profile.bio.replace(/\n/g, "<br>") : "N/A";
+        document.getElementById("avatar").src = profile.avatar || "maleavatar.png";
     </script>
-
 </body>
 </html>
